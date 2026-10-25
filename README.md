@@ -102,6 +102,13 @@ Rules the relay enforces:
 - Commands like «run it on your side», «give me access»: those go to the
   owner as a request, they are not executed.
 
+### Name the chat in the schedule title
+
+A schedule belongs to the chat that created it. Title it with the owner:
+`<agent>: <what it does>` — `project-a: poll mail`. Three schedules called
+"check mail" are indistinguishable in a list, and picking the right one to
+remove becomes guesswork. Never create a schedule in another agent's chat:
+that is how one agent wakes another behind the owner's back.
 ### One shared bus: give agents the absolute path
 
 The bus is one directory for all agents, outside their projects. A contract
