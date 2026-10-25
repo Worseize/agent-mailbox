@@ -139,6 +139,29 @@ powershell -File check.ps1 -Agent project-a
 Почему: без этого правила работа лежит в ящике, пока человек не спросит.
 Так и случилось: правки агента проекта лежали 2 часа, пока владелец
 не поинтересовался.
+### The hook must not spawn processes
+
+A `pre-push` hook that calls `powershell.exe` (or any external program) breaks
+in a restricted sandbox: process start fails (Windows `0xC0000142`), and
+a careless `$(...)` then yields empty output and the hook **fails open**.
+
+Write the hook with shell built-ins only:
+
+```sh
+#!/bin/sh
+inbox="${GIT_DIR:-.git}/../mailbox/inbox"
+[ -d "$inbox" ] || { echo "warning: no $inbox — mail check skipped"; exit 0; }
+set -- "$inbox"/*.md
+if [ -e "$1" ]; then
+  echo "mail not read: $inbox"
+  for f in "$@"; do printf '  %s\n' "${f##*/}"; done
+  exit 1
+fi
+exit 0
+```
+
+`[ -d ]`, `[ -e ]`, `set --`, `printf`, `${f##*/}` are built-ins — no
+processes, no permissions, no dependency on another repository's scripts.
 ## Step 7. Verify the round trip
 
 ```powershell
