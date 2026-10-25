@@ -30,6 +30,10 @@ jobs:
           Write-Host "relay exit code: $code"
           # 1 means "rejections happened" — for this test that is expected
           if ($code -ne 0 -and $code -ne 1) { throw "relay failed with $code" }
+          # шаг наследует $LASTEXITCODE от native-вызова: без сброса джоба
+          # падает на «ожидаемом» коде 1 (поймано на первом прогоне)
+          $global:LASTEXITCODE = 0
+          exit 0
 
       - name: Assert delivery and rejection
         shell: pwsh
