@@ -8,12 +8,12 @@
 ```powershell
 # создать расписание (раз в 5 минут)
 schtasks /Create /TN "AgentMailboxRelay" /SC MINUTE /MO 5 /F /TR `
-  "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\agent-bus\relay.ps1"
+  "powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\path\to\relay.ps1"
 
 # разовый прогон
 schtasks /Run /TN "AgentMailboxRelay"
 # или напрямую
-powershell -NoProfile -ExecutionPolicy Bypass -File C:\agent-bus\relay.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File C:\path\to\relay.ps1
 
 # остановить и убрать
 schtasks /End /TN "AgentMailboxRelay"
@@ -101,3 +101,20 @@ schtasks /Delete /TN "AgentMailboxRelay" /F
 | агент узла | расписание, `rules.json`, журнал, разбор отказов |
 | агент проекта | свои `inbox`/`outbox`, чтение по расписанию, короткие ответы |
 | владелец | маршруты, необратимые решения, `requires: owner` |
+## Стол заявок (необязательный модуль `desk/`)
+
+Вопросы, которые решает человек, не должны жить в переписке. `desk/owner-desk.py`
+превращает их в заявки с номером и статусом, присылает в мессенджер
+с кнопками, принимает ответ (в том числе произвольный текст) и возвращает
+решение на шину.
+
+| Что | Где |
+| --- | --- |
+| служба | `desk/owner-desk.service` (systemd) |
+| токен | `/etc/owner-desk/token`, `600 root` |
+| получатель | `DESK_OWNER_ID` — единственный, кто может отвечать |
+| хранилище | `DESK_STORE`, по умолчанию `/var/lib/owner-desk/questions.json` |
+| проверка | `python3 desk/owner-desk.py selftest` — без сети и токена |
+
+Стол забирает вопросы из шины: сообщение с `requires: owner` становится
+заявкой. Ответ возвращается агенту-источнику сообщением от узла.

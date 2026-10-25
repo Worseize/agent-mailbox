@@ -1,23 +1,47 @@
 {
   "version": 1,
+  "agents": ["node", "project-a", "project-b", "public-site"],
+  "repos": {
+    "node": "C:\\path\\to\\node-project",
+    "project-a": "C:\\path\\to\\project-a",
+    "project-b": "C:\\path\\to\\project-b",
+    "public-site": "C:\\path\\to\\public-site"
+  },
+  "bus_root": "",
   "limits": {
     "max_bytes": 16384,
     "max_per_day_per_agent": 20,
-    "max_replies_per_topic_per_day": 3
+    "max_replies_per_topic_per_day": 3,
+    "per_agent": { "node": 60 }
   },
   "routes": [
-    { "from": "owner",       "to": "*",           "kinds": ["task", "request", "report", "decision", "note"] },
-    { "from": "node",        "to": "project-a",   "kinds": ["request", "report", "decision-needed", "note"] },
-    { "from": "node",        "to": "project-b",   "kinds": ["request", "report", "decision-needed", "note"] },
-    { "from": "node",        "to": "public-site", "kinds": ["request", "report", "decision-needed", "note"] },
-    { "from": "project-a",   "to": "node",        "kinds": ["request", "report", "note"] },
-    { "from": "project-b",   "to": "node",        "kinds": ["request", "report", "note"] },
-    { "from": "public-site", "to": "node",        "kinds": ["request", "report", "note"] }
+    { "from": "node", "to": "project-a", "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "node", "to": "project-b", "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "node", "to": "public-site", "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "project-a", "to": "node", "kinds": ["request", "report", "note"] },
+    { "from": "project-b", "to": "node", "kinds": ["request", "report", "note"] },
+    { "from": "public-site", "to": "node", "kinds": ["request", "report", "note"] }
   ],
-  "agents": ["node", "project-a", "project-b", "public-site"],
+  "files": {
+    "enabled": true,
+    "max_bytes": 10485760,
+    "quota_bytes": 209715200,
+    "max_age_days": 7,
+    "deny_ext": ["exe", "dll", "msi", "bat", "cmd", "scr", "com", "pif", "vbs", "js", "jse", "wsf", "jar", "so", "dylib", "ps1", "sh"]
+  },
+  "remote": {
+    "enabled": false,
+    "host": "root@example-host",
+    "key": "C:\\path\\to\\id_ed25519",
+    "dir": "/var/owner-desk/bus/conductor/outbox",
+    "in_dir": "/var/owner-desk/bus/conductor/inbox",
+    "forward_dir": "/var/owner-desk/bus/conductor/inbox"
+  },
   "notes": [
-    "Projects never message each other: project -> project is forbidden by design.",
-    "The sender identity is the outbox directory name, not the text of the message.",
-    "requires=owner means: do not execute until the owner confirms in chat."
+    "Each agent has its own mailbox inside its repository: <repo>/mailbox/{inbox,outbox,rejected}.",
+    "The relay is the only process that writes into another agent's repository, and only into mailbox/inbox.",
+    "bus_root is where journal.log and STATUS.md live; empty means <repo of conductor>/mailbox.",
+    "remote is optional: it moves owner-desk questions between the bus and a remote host over SSH.",
+    "A project never messages a project: project -> project is rejected by design."
   ]
 }

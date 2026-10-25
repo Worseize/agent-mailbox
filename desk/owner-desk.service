@@ -1,0 +1,22 @@
+[Unit]
+Description=Owner desk: questions for the owner with buttons
+After=network-online.target
+Wants=network-online.target
+Documentation=file:/srv/app/current/docs/FOR-OWNER-OWNER-DESK.md
+
+[Service]
+Type=simple
+# Явно root: нужен доступ к /var/lib/owner-desk и /srv/app/mailbox
+User=root
+EnvironmentFile=-/etc/owner-desk/desk.env
+ExecStart=/usr/bin/python3 /srv/app/current/deploy/owner-desk.py serve
+Restart=always
+RestartSec=10
+# Ограничения файловой системы: пишет только в свой каталог
+ProtectSystem=strict
+ReadWritePaths=/var/lib/owner-desk /srv/app/mailbox
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

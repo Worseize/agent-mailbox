@@ -1,34 +1,41 @@
-﻿# Проверка почты без модели
+# check.ps1 — есть ли работа в почте агента. Модель не вызывает.
 #
 #   powershell -File check.ps1 -Agent bot-agent
 #
-# Код 0  — в inbox ничего нет (EMPTY). Агент может ответить «idle» и не тратить
-#          токены на чтение сообщений.
-# Код 1  — есть непрочитанное: печатает имена файлов, агент читает.
-# Код 2  — ошибка запуска (нет каталога и т.п.).
+# Код 0 — EMPTY: писем нет.
+# Код 1 — PENDING n: есть непрочитанное (печатает имена).
+# Код 2 — ошибка конфигурации (нет агента в mailbox-rules.json или нет каталога).
 #
-# Этот скрипт не вызывает модель и ничего не отправляет: он только отвечает
-# на вопрос «есть ли работа». Ставится первым шагом в расписании агента.
+# Ящик каждого агента лежит в его собственном репозитории: <repo>/mailbox/inbox.
+# Агент не ходит по системе — он читает только свою папку.
 
 param(
     [Parameter(Mandatory = $true)][string]$Agent,
-    [string]$Root = ''
+    [string]$Config = ''
 )
 
 $ErrorActionPreference = 'Stop'
-if ([string]::IsNullOrWhiteSpace($Root)) {
-    $Root = $PSScriptRoot
-    if ([string]::IsNullOrWhiteSpace($Root)) { $Root = Split-Path -Parent $MyInvocation.MyCommand.Path }
-}
-$inbox = Join-Path $Root (Join-Path $Agent 'inbox')
+$here = $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($here)) { $here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+if ([string]::IsNullOrWhiteSpace($Config)) { $Config = Join-Path $here 'mailbox-rules.json' }
 
+if (-not (Test-Path $Config)) {
+    Write-Output "NO-CONFIG $Config"
+    exit 2
+}
+$rules = Get-Content -Raw -LiteralPath $Config | ConvertFrom-Json
+$repo = $rules.repos.$Agent
+if ([string]::IsNullOrWhiteSpace($repo)) {
+    Write-Output "NO-AGENT $Agent"
+    exit 2
+}
+$inbox = Join-Path (Join-Path $repo 'mailbox') 'inbox'
 if (-not (Test-Path $inbox)) {
     Write-Output "NO-INBOX $inbox"
     exit 2
 }
 
 $files = @(Get-ChildItem -LiteralPath $inbox -Filter '*.md' -File -ErrorAction SilentlyContinue)
-
 if ($files.Count -eq 0) {
     Write-Output 'EMPTY'
     exit 0
