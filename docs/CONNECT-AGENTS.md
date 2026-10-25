@@ -210,6 +210,27 @@ Never: ask the human about work inside your own scope; bypass the node
 agent's refusal through another channel; do irreversible things silently;
 stay quiet about what you did. Silence is not approval — no decision means
 the action is not allowed.
+### Three attempts, then escalate
+
+If a fixture, test or defect does not get fixed in **three attempts**, stop
+and report to the node agent. Not a fourth attempt, not a request to the human
+to change the sandbox mode, not silence.
+
+Three failures usually mean one of three things: a permissions bug, an
+architectural bug in the node (its rule demands the impossible), or a wrong
+hypothesis about the cause. All three are the node's business to diagnose.
+
+Report (`kind: request`, `topic: escalation`), five lines:
+
+1. what does not work — one sentence;
+2. the three attempts: change, command, result — one line each;
+3. the exact error text, not a paraphrase;
+4. hypothesis: permissions / node architecture / own mistake — and why;
+5. what is needed from the node: check rights, fix the rule, reproduce.
+
+Never: keep trying after the third failure; ask the human about rights or
+sandbox mode; report «does not work» without the error text; work around it
+silently (a workaround without a report is a debt nobody knows about).
 ## Step 8. What not to do
 
 | Don't | Why |
