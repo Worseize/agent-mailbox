@@ -145,20 +145,28 @@ A `pre-push` hook that calls `powershell.exe` (or any external program) breaks
 in a restricted sandbox: process start fails (Windows `0xC0000142`), and
 a careless `$(...)` then yields empty output and the hook **fails open**.
 
-Write the hook with shell built-ins only:
+Write the hook with shell built-ins only. Reading is confirmed by a marker
+file, because moving mail to `processed/` needs a process:
 
 ```sh
 #!/bin/sh
 inbox="${GIT_DIR:-.git}/../mailbox/inbox"
 [ -d "$inbox" ] || { echo "warning: no $inbox — mail check skipped"; exit 0; }
+[ -f "$inbox/.checked" ] && exit 0
 set -- "$inbox"/*.md
 if [ -e "$1" ]; then
   echo "mail not read: $inbox"
   for f in "$@"; do printf '  %s\n' "${f##*/}"; done
+  echo "read the mail, create $inbox/.checked, push again"
   exit 1
 fi
 exit 0
 ```
+
+The agent creates `inbox/.checked` with its file-writing tool; the relay sees
+the marker, moves the mail to `processed/`, removes the marker and writes
+`ACK agent=… moved=…` to the journal. Unconfirmed mail older than an hour is
+reported as `MAIL STALE`, so a dead rule is visible.
 
 `[ -d ]`, `[ -e ]`, `set --`, `printf`, `${f##*/}` are built-ins — no
 processes, no permissions, no dependency on another repository's scripts.
@@ -180,6 +188,28 @@ Get-ChildItem C:\path\to\node\mailbox\inbox
 Success: message in `inbox`, `ACCEPT` line in the journal. Refusal: file in
 `rejected/` next to `.reason`, `REJECT` line in the journal.
 
+## Authority: what you decide yourself
+
+A rule that requires asking the human for everything stops work. Define the
+scope once:
+
+| Role | Decides alone | Escalates to |
+| --- | --- | --- |
+| project agent | its own repository, tests, schedules, mailbox | node agent |
+| node agent | host, bus, order, other repositories by agreement | owner |
+| owner | DNS, domains, data, money, anything irreversible | — |
+
+Three questions to test the scope: is the change inside **my** repository?
+is it **reversible**? does it **affect nobody else**? Three «yes» — do it and
+report briefly. Any «no» — escalate.
+
+Escalation format (bus message, `kind: request`, `topic: escalation`): what
+is needed, why, how it will be verified, by when. Four lines, no history.
+
+Never: ask the human about work inside your own scope; bypass the node
+agent's refusal through another channel; do irreversible things silently;
+stay quiet about what you did. Silence is not approval — no decision means
+the action is not allowed.
 ## Step 8. What not to do
 
 | Don't | Why |
