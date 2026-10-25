@@ -19,6 +19,14 @@ jobs:
               New-Item -ItemType Directory -Force "$a\mailbox\$d" | Out-Null
             }
           }
+          New-Item -ItemType Directory -Force mailbox | Out-Null
+          # в CI пути реальные: репозитории — каталоги раннера, а не C:\path\to
+          $cfg = Get-Content rules.json -Raw | ConvertFrom-Json
+          foreach ($a in 'node','project-a','project-b','public-site') {
+            $cfg.repos.$a = Join-Path $PWD $a
+          }
+          $cfg.bus_root = Join-Path $PWD 'mailbox'
+          $cfg | ConvertTo-Json -Depth 8 | Set-Content rules.json
           Copy-Item examples/request.md node\mailbox\outbox\0001.md
           Copy-Item examples/rejected-lateral.md project-a\mailbox\outbox\0002.md
 
