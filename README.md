@@ -122,6 +122,33 @@ are not:
 Why it matters: an agent that archives everything it sees silently steals
 another agent's mail. The sender thinks it was delivered; it is in the wrong
 `processed/` folder.
+### Polling costs tokens — check before you read
+
+A scheduled wake-up is a full model turn: system instruction, chat history
+and tool descriptions are billed even when the inbox is empty. Provider
+prompt caching discounts the unchanged prefix (often to ~10% of input
+price) but does not make an idle turn free.
+
+`check.ps1` answers "is there work?" without calling a model:
+
+```powershell
+powershell -File check.ps1 -Agent project-a
+# EMPTY          -> rc=0, nothing to read
+# PENDING 2 ...  -> rc=1, two messages waiting
+# NO-INBOX ...   -> rc=2, misconfiguration
+```
+
+Recommended policy:
+
+| Situation | What to do |
+| --- | --- |
+| Idle project agent | **no timer**; read `inbox` at the start of any work turn |
+| Active work | poll every 30 min, with `check.ps1` as the first step |
+| Compromise | poll every 4 hours, never every minute |
+| Urgent inbound | the node asks the owner to wake the agent with one message |
+
+Why: 48 wake-ups a day at ~15k tokens of context is ~720k input tokens per
+agent per day, most of them for an empty inbox.
 ## Roles
 
 | Role | May | Must not |
