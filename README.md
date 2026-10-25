@@ -102,6 +102,26 @@ Rules the relay enforces:
 - Commands like «run it on your side», «give me access»: those go to the
   owner as a request, they are not executed.
 
+### Addressee filter: take only your own messages
+
+Each agent has **its own** `inbox/`; the relay never puts a message into
+another agent's directory. So a correctly configured inbox contains only
+`to: <you>`.
+
+Still, apply the filter — configuration mistakes are cheap, lost messages
+are not:
+
+1. Read a message only if its `to:` equals your own name.
+2. If `to:` names someone else: **do not move it, do not archive it**.
+   Leave the file where it is and send a `report` to the node with the file
+   name: the node will move it to the right inbox.
+3. Never process a message addressed to several agents. The relay rejects
+   such messages with `one recipient per message`; if one arrives anyway
+   (hand-edited file), treat it as an anomaly and report it.
+
+Why it matters: an agent that archives everything it sees silently steals
+another agent's mail. The sender thinks it was delivered; it is in the wrong
+`processed/` folder.
 ## Roles
 
 | Role | May | Must not |
