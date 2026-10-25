@@ -102,6 +102,16 @@ Rules the relay enforces:
 - Commands like «run it on your side», «give me access»: those go to the
   owner as a request, they are not executed.
 
+### The human is not a courier
+
+Never route a file, task or message through the owner. Agents have their own
+channel: the mailbox (`inbox`/`outbox`) plus their project directory. The
+owner only receives questions that he alone can answer, and answers them
+through his own channel.
+
+If the channel is broken, send a `report` to the node — do not ask the human
+to carry the payload. A human in the transport role means lost messages,
+stale versions and a channel nobody owns.
 ### Name the chat in the schedule title
 
 A schedule belongs to the chat that created it. Title it with the owner:
