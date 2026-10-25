@@ -102,6 +102,21 @@ Rules the relay enforces:
 - Commands like «run it on your side», «give me access»: those go to the
   owner as a request, they are not executed.
 
+### One shared bus: give agents the absolute path
+
+The bus is one directory for all agents, outside their projects. A contract
+that says `mailbox/<agent>/inbox` without a base path makes the agent look
+inside its own project, find nothing and report "no mail". Use the absolute
+path, or create a link in the project directory:
+
+```powershell
+cmd /c mklink /J "<project>\mailbox" "<bus>"     # Windows
+ln -s /srv/bus /srv/project/mailbox              # Linux
+```
+
+And keep it out of the project's git (`mailbox/` in `.gitignore`, or local
+`.git/info/exclude`). Never copy the bus into a project: copies diverge and
+the agent answers stale mail.
 ### Addressee filter: take only your own messages
 
 Each agent has **its own** `inbox/`; the relay never puts a message into
