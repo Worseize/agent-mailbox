@@ -1,0 +1,52 @@
+name: relay
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  self-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare bus
+        shell: pwsh
+        run: |
+          Copy-Item rules.example.json rules.json
+          foreach ($a in 'node','project-a','project-b','public-site') {
+            foreach ($d in 'inbox','outbox','rejected') {
+              New-Item -ItemType Directory -Force "$a\$d" | Out-Null
+            }
+          }
+          Copy-Item examples/request.md node\outbox\0001.md
+          Copy-Item examples/rejected-lateral.md project-a\outbox\0002.md
+
+      - name: Run relay
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File relay.ps1
+          $code = $LASTEXITCODE
+          Write-Host "relay exit code: $code"
+          # 1 means "rejections happened" — for this test that is expected
+          if ($code -ne 0 -and $code -ne 1) { throw "relay failed with $code" }
+
+      - name: Assert delivery and rejection
+        shell: pwsh
+        run: |
+          $inbox = @(Get-ChildItem project-a\inbox -File)
+          if ($inbox.Count -ne 1) { throw "expected 1 delivered message, got $($inbox.Count)" }
+
+          $rejected = @(Get-ChildItem project-a\rejected -Filter *.md -File)
+          if ($rejected.Count -ne 1) { throw "expected 1 rejected message, got $($rejected.Count)" }
+
+          $reason = Get-ChildItem project-a\rejected -Filter *.reason | Select-Object -First 1
+          if (-not $reason) { throw "rejection reason file is missing" }
+
+          $journal = Get-Content journal.log -Raw
+          if ($journal -notmatch 'ACCEPT from=node to=project-a') { throw "no ACCEPT line in journal" }
+          if ($journal -notmatch 'REJECT from=project-a') { throw "no REJECT line in journal" }
+
+          if (-not (Test-Path STATUS.md)) { throw "STATUS.md was not written" }
+          Get-Content journal.log
+          Write-Host "bus self-test: OK"

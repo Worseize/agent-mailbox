@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "limits": {
+    "max_bytes": 16384,
+    "max_per_day_per_agent": 20,
+    "max_replies_per_topic_per_day": 3
+  },
+  "routes": [
+    { "from": "owner",       "to": "*",           "kinds": ["task", "request", "report", "decision", "note"] },
+    { "from": "node",        "to": "project-a",   "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "node",        "to": "project-b",   "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "node",        "to": "public-site", "kinds": ["request", "report", "decision-needed", "note"] },
+    { "from": "project-a",   "to": "node",        "kinds": ["request", "report", "note"] },
+    { "from": "project-b",   "to": "node",        "kinds": ["request", "report", "note"] },
+    { "from": "public-site", "to": "node",        "kinds": ["request", "report", "note"] }
+  ],
+  "agents": ["node", "project-a", "project-b", "public-site"],
+  "notes": [
+    "Projects never message each other: project -> project is forbidden by design.",
+    "The sender identity is the outbox directory name, not the text of the message.",
+    "requires=owner means: do not execute until the owner confirms in chat."
+  ]
+}

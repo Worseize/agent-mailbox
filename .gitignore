@@ -1,0 +1,17 @@
+# runtime bus state — never commit
+rules.json
+journal.log
+journal-*.log
+STATUS.md
+node/
+project-a/
+project-b/
+public-site/
+
+# windows
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
