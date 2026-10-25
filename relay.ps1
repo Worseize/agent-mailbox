@@ -27,7 +27,9 @@ if ([string]::IsNullOrWhiteSpace($Root)) {
 if ([string]::IsNullOrWhiteSpace($Root)) { Write-Error 'не удалось определить каталог mailbox'; exit 2 }
 # BOM: иначе Windows PowerShell читает файл как ANSI и сводка выглядит мусором
 $utf8 = New-Object System.Text.UTF8Encoding($true)
-$rulesPath = if ($Config) { $Config } else { Join-Path $PSScriptRoot 'mailbox-rules.json' }
+$rulesPath = if ($Config) { $Config }
+elseif (Test-Path (Join-Path $PSScriptRoot 'rules.json')) { Join-Path $PSScriptRoot 'rules.json' }
+else { Join-Path $PSScriptRoot 'mailbox-rules.json' }
 $journalPath = Join-Path $Root 'journal.log'
 $statusPath = Join-Path $Root 'STATUS.md'
 
