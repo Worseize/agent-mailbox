@@ -122,6 +122,9 @@ foreach ($from in $agents) {
             if (-not $reason -and $meta['from'] -ne $from) {
                 $reason = "from='$($meta['from'])' не совпадает с каталогом '$from'"
             }
+            if (-not $reason -and ($meta['to'] -match '[,\s]')) {
+                $reason = "one recipient per message: to='$($meta['to'])'"
+            }
             if (-not $reason -and $agents -notcontains $meta['to']) {
                 $reason = "неизвестный адресат '$($meta['to'])'"
             }
