@@ -300,10 +300,15 @@ Keep one debt board per agent, in the same shape, so the human reads them
 without relearning:
 
 1. Sections in this order: open, deferred by owner, waiting for owner.
-2. Six columns: id, debt, why open, what unblocks, priority (`P0`/`P1`/`P2`),
+2. Seven columns: id, debt, **recipient**, why open, what unblocks, priority (`P0`/`P1`/`P2`),
    since when.
 3. Tags in the id: `D` — your debt, `W` — owner's decision (needs a
-   question), `L` — owner deferred it (chat only, never in Telegram).
+   question), `L` — owner deferred it (chat only, never in Telegram),
+   `N` — task for the node (send it as a message; it stays on the board only
+   until sent).
+   The recipient column is always filled: `me`, `owner`, `owner (later)`,
+   `node`. A board must not list other people's tasks, and the footer count
+   is taken from the rows, never invented.
 4. «What unblocks» cannot be empty: without a condition it is a complaint.
 5. No «closed» section: closed rows are deleted, history lives in git.
 
