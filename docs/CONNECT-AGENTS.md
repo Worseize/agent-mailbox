@@ -310,6 +310,24 @@ without relearning:
 Template: `docs/DEBTS.template.md`. A checker should fail on wrong column
 count, bad priority, empty unblock condition, a closed section, a `W` item
 without a question, and an open question for an `L` item.
+### Precedents go to the archive, rules stay in AGENTS.md
+
+`AGENTS.md` is re-sent to the model on every turn of every session — its size
+is money, not just a document.
+
+1. `AGENTS.md` holds live rules: one to three lines each, plus a pointer to
+   the ADR and to the check that guards it.
+2. Incident histories live in `docs/AGENTS-ARCHIVE.md`; it is not part of the
+   prompt and is read on demand.
+3. A new precedent goes to the archive; the rule keeps one line with the date
+   and ADR number.
+4. Keep a size budget (we use 14 KB) and a check that fails above it.
+5. Do not delete the archive: it shows which check should exist, and a rule
+   without a reason gets «optimised away» sooner or later.
+
+Why the histories existed at all: every rule was born from a concrete failure,
+and the history was the source for writing the test. That worked — the cost
+was file size in every request.
 ## Step 8. What not to do
 
 | Don't | Why |
