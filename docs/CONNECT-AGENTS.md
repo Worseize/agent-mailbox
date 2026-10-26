@@ -273,6 +273,27 @@ obligations. Do this in the same step:
 
 Never: wake, read, and leave the registry untouched; write «debts: 0» without
 a reason; keep new obligations in your head; close an item without evidence.
+### Every reply closes a debt
+
+While your debt registry has open items, **every reply closes at least one** —
+with live proof, and the entry is removed from the registry. Do not summarise
+the queue; move it.
+
+Report line:
+
+```
+debts: -1 / +0 / changed 0
+closed D64: <what was verified>
+```
+
+If the registry is empty, say «no debts» — that is a statement, not silence.
+
+Never: answer with open debts and close none; close with the word «done»
+without proof; retell the front instead of working; keep «almost closed»
+items open to make the list look long.
+
+Add a script like the node's `reply-debts` (snapshot of open items on the
+previous reply, compare with current, exit 1 when nothing closed).
 ## Step 8. What not to do
 
 | Don't | Why |
