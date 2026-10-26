@@ -294,6 +294,22 @@ items open to make the list look long.
 
 Add a script like the node's `reply-debts` (snapshot of open items on the
 previous reply, compare with current, exit 1 when nothing closed).
+### Debt board: same shape everywhere
+
+Keep one debt board per agent, in the same shape, so the human reads them
+without relearning:
+
+1. Sections in this order: open, deferred by owner, waiting for owner.
+2. Six columns: id, debt, why open, what unblocks, priority (`P0`/`P1`/`P2`),
+   since when.
+3. Tags in the id: `D` — your debt, `W` — owner's decision (needs a
+   question), `L` — owner deferred it (chat only, never in Telegram).
+4. «What unblocks» cannot be empty: without a condition it is a complaint.
+5. No «closed» section: closed rows are deleted, history lives in git.
+
+Template: `docs/DEBTS.template.md`. A checker should fail on wrong column
+count, bad priority, empty unblock condition, a closed section, a `W` item
+without a question, and an open question for an `L` item.
 ## Step 8. What not to do
 
 | Don't | Why |
