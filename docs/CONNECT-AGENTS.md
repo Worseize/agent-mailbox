@@ -231,6 +231,20 @@ Report (`kind: request`, `topic: escalation`), five lines:
 Never: keep trying after the third failure; ask the human about rights or
 sandbox mode; report «does not work» without the error text; work around it
 silently (a workaround without a report is a debt nobody knows about).
+### Front of work in every reply
+
+A reply that lists only what was done hides the queue. Show both sides:
+
+1. Run the front-of-work command first (it reads the debt registry):
+   `powershell -File deploy/front.ps1` or `grep` the registry in your project.
+2. Answer with two sections: **done** (with evidence: commit, test output)
+   and **not done** (open items with what unblocks each).
+3. If both are empty, say «not done: empty» and name the registry file.
+   Silence is not the same as an empty queue.
+4. Anything new that is not done goes into the registry in the same step,
+   not only into the chat message.
+
+Why: the human should never have to ask «what else is left?».
 ## Step 8. What not to do
 
 | Don't | Why |
