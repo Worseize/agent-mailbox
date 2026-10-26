@@ -245,6 +245,34 @@ A reply that lists only what was done hides the queue. Show both sides:
    not only into the chat message.
 
 Why: the human should never have to ask «what else is left?».
+### Decisions go to the owner's inbox, not the chat
+
+A decision asked in a chat is a decision that will be lost. Route every
+question that needs the owner through a durable channel with buttons and
+history (a bot, a ticket, a desk), and keep a register mapping
+«open item → question sent».
+
+1. Every «waiting for owner» item exists **together** with a sent question.
+2. Send with ready-made options («Yes | No | Later»), no technical detail.
+3. Record the link in one file: item id, question, topic, time, status.
+4. In the chat answer only «sent, press the button» — never ask there.
+5. Answer arrived → decision is written down, question closed, item removed.
+
+Why: the human should answer once, in a place where his answer is stored.
+### Woke up — recount your debts
+
+Every wake-up is more than «read what arrived»: new data changes your
+obligations. Do this in the same step:
+
+1. Read the mailbox (`check.ps1`), plus any decisions the human made.
+2. For each new fact ask: a debt appeared, closed, or changed its condition?
+3. Update your debt registry **in that same step**.
+4. Report an explicit line: «debts: +N / −M / changed K», with a short reason
+   per change. If nothing changed, say «+0 / −0 / 0 — no new obligations
+   because …».
+
+Never: wake, read, and leave the registry untouched; write «debts: 0» without
+a reason; keep new obligations in your head; close an item without evidence.
 ## Step 8. What not to do
 
 | Don't | Why |
